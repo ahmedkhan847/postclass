@@ -20,7 +20,6 @@ class Post
         $content = $con->real_escape_string($a_content);
         $img     = $con->real_escape_string($imgname);
         $query   = $con->prepare("INSERT INTO post(article_name, article_content, img) VALUES(?, ?, ?)");
-        var_dump($query);
         $query->bind_param("sss", $title, $content, $img);
         $result = $query->execute();
         if (!$result) {
@@ -37,8 +36,9 @@ class Post
     public function getarticle($articleid)
     {
         $con = $this->db->OpenCon();
+        $id = $con->real_escape_string($articleid);
 
-        $stmt = "SELECT article_name,article_content,img,DATE_FORMAT(date,'%d %b, %Y') as dates from post WHERE article_id = '$articleid'";
+        $stmt = "SELECT article_name,article_content,img,DATE_FORMAT(date,'%d %b, %Y') as dates from post WHERE article_id = '$id'";
 
         $result = $con->query($stmt);
 
@@ -54,12 +54,15 @@ class Post
 
     }
 
-    public function deletearticle($id)
+    public function deletearticle($articleid)
     {
 
         $con    = $this->db->OpenCon();
-        $sql    = "DELETE FROM post WHERE articleid = '$id'";
-        $result = $con->query($sql);
+        $id = $con->real_escape_string($articleid);
+
+        $query   = $con->prepare("DELETE FROM post WHERE articleid = ?");
+        $query->bind_param("i",$id);
+        $result =$query->execute();
 
         if (!$result) {
 
